@@ -37,8 +37,8 @@ public class CollisionHelper {
         double scalar2 = (massTerm2 * dotProd / lengthSqrt);
         Vec2 correctionVec2 = centVec.scale(scalar2 * -1);
 
-        Vec2 newV1 = v1.substract(correctionVec);
-        Vec2 newV2 = v2.substract(correctionVec2);
+        Vec2 newV1 = v1.substract(correctionVec.scale(0.86));
+        Vec2 newV2 = v2.substract(correctionVec2.scale(0.86));
 
         return new VelocityPair(newV1, newV2);
     }
