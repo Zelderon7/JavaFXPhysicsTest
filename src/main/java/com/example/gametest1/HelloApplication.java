@@ -24,10 +24,12 @@ public class HelloApplication extends Application {
     // Constants for simulation
     private static final int WIDTH = 800;
     private static final int HEIGHT = 800;
-    private static final int BALL_COUNT = 10;
+    private static final int BALL_COUNT = 1000;
+    private static final double BALL_RADIUS = 5;
     private static final double ARENA_RADIUS = 350;
     private static final Vec2 CENTER = new Vec2(WIDTH / 2, HEIGHT / 2);
     private static Random random = new Random();
+    private static boolean DRAW_LINES = false;
 
     // JavaFX root node
     private Pane root;
@@ -64,6 +66,7 @@ public class HelloApplication extends Application {
         root.getChildren().add(boundary);
     }
 
+    //<editor-fold desc="Testing Methods">
     private void testInit(){
         SimBall ball = new SimBall(400, 720, 20, Color.YELLOW, 1);
         ball.setVelocity(new Vec2(60, -2).scale(10));
@@ -83,11 +86,13 @@ public class HelloApplication extends Application {
         root.getChildren().add(ball2.getNode());
     }
 
+    //</editor-fold>
+
     private void initBalls() {
         for (int i = 0; i < BALL_COUNT; i++) {
             // You’ll define SimBall class to manage position, velocity, and JavaFX node
             double gap = (double) WIDTH / (BALL_COUNT + 1);
-            SimBall ball = new SimBall((i+1)* gap, HEIGHT / 2.0, 10);
+            SimBall ball = new SimBall((i+1)* gap, HEIGHT / 2.0, BALL_RADIUS, Color.YELLOW, 1);
             ball.setColor(getRandomPredefinedColor());
             ball.setVelocity(new Vec2(random.nextDouble() - .5, random.nextDouble() -.5).scale(300));
 
@@ -150,7 +155,8 @@ public class HelloApplication extends Application {
             SimBall ballI = balls.get(i);
             //Check if hits container
             if(ballI.getPosition().substract(CENTER).getMagnitude() >= ARENA_RADIUS - ballI.getRadius()){
-                createLine(ballI);
+                if(DRAW_LINES)
+                    createLine(ballI);
                 CollisionHelper.resolveCollisionWithArena(ballI, CENTER, ARENA_RADIUS);
             }
 
@@ -180,7 +186,6 @@ public class HelloApplication extends Application {
         ballI.addLine(line);
         root.getChildren().add(line.getNode());
     }
-
 
     public static void main(String[] args) {
         launch();
