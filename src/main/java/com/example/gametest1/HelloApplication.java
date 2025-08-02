@@ -168,12 +168,10 @@ public class HelloApplication extends Application {
     }
 
     private void updatePhysics() {
-
-        keepBallsInsideOfArena();
-
         //Use spacial partitioning to find possible collisions
         List<BallsPair> possibleCollisions = CollisionHelper.findPossibleCollisions(balls);
         for(int i = 0; i < 5; i++){
+            keepBallsInsideOfArena();
             if(handleCollisions(possibleCollisions))
                 break;
         }
