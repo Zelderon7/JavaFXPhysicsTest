@@ -1,7 +1,9 @@
 package com.example.gametest1;
 
+import com.example.gametest1.GameObjects.BallsPair;
 import com.example.gametest1.GameObjects.MyLine;
 import com.example.gametest1.GameObjects.SimBall;
+import com.example.gametest1.GameObjects.VelocityPair;
 import com.example.gametest1.Physics.CollisionHelper;
 import com.example.gametest1.Physics.Vec2;
 import javafx.application.Application;
@@ -53,6 +55,7 @@ public class HelloApplication extends Application {
 
         // Create balls and add to scene
         initBalls();
+        //testInit();
         //testInit2();
 
         // Start simulation loop
@@ -151,32 +154,28 @@ public class HelloApplication extends Application {
     }
 
     private void updatePhysics() {
-        for(int i = 0; i < balls.size(); i++){
-            SimBall ballI = balls.get(i);
-            //Check if hits container
-            if(ballI.getPosition().substract(CENTER).getMagnitude() >= ARENA_RADIUS - ballI.getRadius()){
-                if(DRAW_LINES)
-                    createLine(ballI);
-                CollisionHelper.resolveCollisionWithArena(ballI, CENTER, ARENA_RADIUS);
+
+        keepBallsInsideOfArena();
+
+        //Use spacial partitioning to find possible collisions
+        List<BallsPair> possibleCollisions = CollisionHelper.findPossibleCollisions(balls);
+        for(BallsPair pair : possibleCollisions){
+            if(CollisionHelper.areCirclesColliding(pair)){
+
+                VelocityPair velocities = CollisionHelper.calculateNewVelocities(pair.a().getPosition(), pair.a().getVelocity(), pair.a().getMass(), pair.b().getPosition(), pair.b().getVelocity(), pair.b().getMass());
+                pair.a().setVelocity(velocities.v1New);
+                pair.b().setVelocity(velocities.v2New);
+
+                CollisionHelper.seperateBalls(pair.a(), pair.b());
+
             }
+        }
+    }
 
-            for(int j = i+1;  j < balls.size(); j++){
-                SimBall ballJ = balls.get(j);
-
-
-                if(CollisionHelper.areCirclesColliding(ballI.getPosition(), ballI.getRadius(), ballJ.getPosition(), ballJ.getRadius())){
-                    //Seperate balls
-                    CollisionHelper.seperateBalls(ballI, ballJ);
-
-                    //calculate new velocities
-                    Vec2 newVelI = CollisionHelper.calculateNewVelocity(ballI.getPosition(), ballI.getVelocity(), ballI.getMass(), ballJ.getPosition(), ballJ.getVelocity(), ballJ.getMass());
-                    Vec2 newVelJ = CollisionHelper.calculateNewVelocity(ballJ.getPosition(), ballJ.getVelocity(), ballJ.getMass(), ballI.getPosition(), ballI.getVelocity(), ballI.getMass());
-
-                    //apply them
-                    ballI.setVelocity(newVelI);
-                    ballJ.setVelocity(newVelJ);
-                }
-            }
+    private void keepBallsInsideOfArena() {
+        for (SimBall ball : balls){
+            if(ball.getPosition().substract(CENTER).getMagnitude() >= ARENA_RADIUS - ball.getRadius())
+                CollisionHelper.resolveCollisionWithArena(ball, CENTER, ARENA_RADIUS);
         }
     }
 
