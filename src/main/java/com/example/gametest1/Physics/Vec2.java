@@ -55,7 +55,7 @@ public class Vec2 {
         return  new Vec2(0, 0);
     }
 
-    public Vec2 substract(Vec2 v2) {
+    public Vec2 subtract(Vec2 v2) {
         return new Vec2(x - v2.getX(), y - v2.getY());
     }
 

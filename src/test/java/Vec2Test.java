@@ -19,7 +19,7 @@ public class Vec2Test {
         Vec2 v1 = new Vec2(1, 2);
         Vec2 v2 = new Vec2(3, -1);
         Vec2 expected = new Vec2(-2, 3);
-        Vec2 result = v1.substract(v2);
+        Vec2 result = v1.subtract(v2);
         assertEquals(expected, result);
     }
 

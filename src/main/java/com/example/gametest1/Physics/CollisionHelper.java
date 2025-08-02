@@ -4,11 +4,13 @@ import com.example.gametest1.GameObjects.BallsPair;
 import com.example.gametest1.GameObjects.SimBall;
 import com.example.gametest1.GameObjects.VelocityPair;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CollisionHelper {
+
+    private static final double RESTITUTION = .8;
+    private static final double WALL_RESTITUTION = .2;
 
     public static boolean areCirclesColliding(BallsPair pair){
         return areCirclesColliding(pair.a().getPosition(), pair.a().getRadius(), pair.b().getPosition(), pair.b().getRadius());
@@ -24,8 +26,8 @@ public class CollisionHelper {
     public static VelocityPair calculateNewVelocities(Vec2 c1, Vec2 v1, double m1,
                                             Vec2 c2, Vec2 v2, double m2){
 
-        Vec2 relVel = v1.substract(v2);
-        Vec2 centVec = c1.substract(c2);
+        Vec2 relVel = v1.subtract(v2);
+        Vec2 centVec = c1.subtract(c2);
         double dotProd = Vec2.dot(relVel, centVec);
         double lengthSqrt = centVec.lengthSquared();
         double massTerm = 2*m2 / (m1 + m2);
@@ -37,8 +39,8 @@ public class CollisionHelper {
         double scalar2 = (massTerm2 * dotProd / lengthSqrt);
         Vec2 correctionVec2 = centVec.scale(scalar2 * -1);
 
-        Vec2 newV1 = v1.substract(correctionVec.scale(0.86));
-        Vec2 newV2 = v2.substract(correctionVec2.scale(0.86));
+        Vec2 newV1 = v1.subtract(correctionVec.scale(RESTITUTION));
+        Vec2 newV2 = v2.subtract(correctionVec2.scale(RESTITUTION));
 
         return new VelocityPair(newV1, newV2);
     }
@@ -53,7 +55,7 @@ public class CollisionHelper {
     }
 
     private static void moveBallBackToArena(SimBall ball, Vec2 center, double r) {
-        Vec2 dir = ball.getPosition().substract(center);
+        Vec2 dir = ball.getPosition().subtract(center);
         double scalar = r - ball.getRadius();
         Vec2 newPos = center.add(dir.getNormalized().scale(scalar));
         ball.setPosition(newPos);
@@ -61,7 +63,7 @@ public class CollisionHelper {
 
     private static Vec2 calculateReflectionVelocityVector(SimBall ball, Vec2 center) {
         Vec2 v = ball.getVelocity();
-        Vec2 mirrorVector = center.substract(ball.getPosition());
+        Vec2 mirrorVector = center.subtract(ball.getPosition());
         double scalar = 2 * Vec2.dot(v.scale(-1), mirrorVector) /
                 mirrorVector.lengthSquared();
         Vec2 newVec = mirrorVector.scale(scalar).add(v);
@@ -69,12 +71,11 @@ public class CollisionHelper {
         return newVec;
     }
 
-
     public static void seperateBalls(SimBall a, SimBall b) {
-        Vec2 lineOfImpact = b.getPosition().substract(a.getPosition());
+        Vec2 lineOfImpact = b.getPosition().subtract(a.getPosition());
         lineOfImpact = lineOfImpact.getNormalized().scale(a.getRadius() + b.getRadius() - lineOfImpact.getMagnitude());
         double masses = a.getMass() + b.getMass();
-        a.setPosition(a.getPosition().substract(lineOfImpact.scale(1/masses*a.getMass())));
+        a.setPosition(a.getPosition().subtract(lineOfImpact.scale(1/masses*a.getMass())));
         b.setPosition(b.getPosition().add(lineOfImpact.scale(1/masses*b.getMass())));
     }
 

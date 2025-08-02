@@ -1,5 +1,4 @@
 import com.example.gametest1.GameObjects.SimBall;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -71,7 +70,7 @@ public class CollisionHelperTest {
         Vec2 res = (Vec2) method.invoke(null, ball, center);
         Vec2 expected = new Vec2(2.2215765100671, 0.255033557047);
 
-        assertTrue(expected.substract(res).getMagnitude() < .1, "Expected: " + expected.toString() + "\nActual: " + res.toString());
+        assertTrue(expected.subtract(res).getMagnitude() < .1, "Expected: " + expected.toString() + "\nActual: " + res.toString());
     }
 
     @Test
@@ -87,7 +86,7 @@ public class CollisionHelperTest {
 
         Vec2 expected = new Vec2(-2.69, -.45);
 
-        assertTrue(nv1.substract(expected).getMagnitude() < .3, "Expected: " + expected.toString() + "\nActual: " + nv1.toString());
+        assertTrue(nv1.subtract(expected).getMagnitude() < .3, "Expected: " + expected.toString() + "\nActual: " + nv1.toString());
     }
 
     @Test
@@ -98,7 +97,7 @@ public class CollisionHelperTest {
         Vec2 aExp = new Vec2(-0.08925565098878965, -0.08925565098878965);
         Vec2 bExp = new Vec2(1.6785113019775793, 1.6785113019775793);
         CollisionHelper.seperateBalls(a, b);
-        assertTrue(a.getPosition().substract(aExp).getMagnitude() < .1 &&
-                b.getPosition().substract(bExp).getMagnitude() < .1);
+        assertTrue(a.getPosition().subtract(aExp).getMagnitude() < .1 &&
+                b.getPosition().subtract(bExp).getMagnitude() < .1);
     }
 }
