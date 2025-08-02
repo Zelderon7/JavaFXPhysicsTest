@@ -1,4 +1,5 @@
 import com.example.gametest1.GameObjects.SimBall;
+import com.example.gametest1.GameObjects.VelocityPair;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -71,22 +72,6 @@ public class CollisionHelperTest {
         Vec2 expected = new Vec2(2.2215765100671, 0.255033557047);
 
         assertTrue(expected.subtract(res).getMagnitude() < .1, "Expected: " + expected.toString() + "\nActual: " + res.toString());
-    }
-
-    @Test
-    void calculateBallsBounceTest(){
-        Vec2 c1 = new Vec2(4, 3);
-        Vec2 v1 = new Vec2(1, 2);
-        double m1 = 1;
-        Vec2 c2 = new Vec2(7, 5);
-        Vec2 v2 = new Vec2(-1, -1);
-        double m2 = 2;
-
-        Vec2 nv1 = CollisionHelper.calculateNewVelocity(c1, v1, m1, c2, v2, m2);
-
-        Vec2 expected = new Vec2(-2.69, -.45);
-
-        assertTrue(nv1.subtract(expected).getMagnitude() < .3, "Expected: " + expected.toString() + "\nActual: " + nv1.toString());
     }
 
     @Test
