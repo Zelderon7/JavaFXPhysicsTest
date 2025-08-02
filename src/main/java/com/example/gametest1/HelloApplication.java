@@ -33,18 +33,18 @@ public class HelloApplication extends Application {
     private static final double BALL_SPEED_MAX = 50;
     private static final double ARENA_RADIUS = 350;
     private static final double GRAVITY_FORCE = 10;
-    private static final Vec2 CENTER = new Vec2(WIDTH / 2, HEIGHT / 2);
-    private static Random random = new Random();
-    private static boolean DRAW_LINES = false;
+    private static final Vec2 CENTER = new Vec2((double) WIDTH / 2, (double) HEIGHT / 2);
+    private static final Random random = new Random();
+    private static final boolean DRAW_LINES = false;
 
     // JavaFX root node
     private Pane root;
 
     // Ball data structure (custom class you’ll define)
-    private List<SimBall> balls = new ArrayList<>();
+    private final List<SimBall> balls = new ArrayList<>();
 
     long lastTime = 0;
-    private Vec2 gravity = new Vec2(0, 1).scale(GRAVITY_FORCE);
+    private static final Vec2 gravity = new Vec2(0, 1).scale(GRAVITY_FORCE);
 
     @Override
     public void start(Stage stage) {
