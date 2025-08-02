@@ -26,9 +26,13 @@ public class HelloApplication extends Application {
     // Constants for simulation
     private static final int WIDTH = 800;
     private static final int HEIGHT = 800;
-    private static final int BALL_COUNT = 1000;
-    private static final double BALL_RADIUS = 5;
+    private static final int BALL_COUNT = 300;
+    private static final double BALL_RADIUS_MIN = 2;
+    private static final double BALL_RADIUS_MAX = 8;
+    private static final double BALL_SPEED_MIN = 8;
+    private static final double BALL_SPEED_MAX = 50;
     private static final double ARENA_RADIUS = 350;
+    private static final double GRAVITY_FORCE = 10;
     private static final Vec2 CENTER = new Vec2(WIDTH / 2, HEIGHT / 2);
     private static Random random = new Random();
     private static boolean DRAW_LINES = false;
@@ -40,6 +44,7 @@ public class HelloApplication extends Application {
     private List<SimBall> balls = new ArrayList<>();
 
     long lastTime = 0;
+    private Vec2 gravity = new Vec2(0, 1).scale(GRAVITY_FORCE);
 
     @Override
     public void start(Stage stage) {
@@ -92,12 +97,14 @@ public class HelloApplication extends Application {
     //</editor-fold>
 
     private void initBalls() {
+
+        double gap = (double) WIDTH / (BALL_COUNT + 1);
         for (int i = 0; i < BALL_COUNT; i++) {
-            // You’ll define SimBall class to manage position, velocity, and JavaFX node
-            double gap = (double) WIDTH / (BALL_COUNT + 1);
-            SimBall ball = new SimBall((i+1)* gap, HEIGHT / 2.0, BALL_RADIUS, Color.YELLOW, 1);
+            double radius = random.nextDouble(BALL_RADIUS_MAX - BALL_RADIUS_MIN) + BALL_RADIUS_MIN;
+            double speed = random.nextDouble(BALL_SPEED_MAX - BALL_SPEED_MIN) + BALL_SPEED_MIN;
+            SimBall ball = new SimBall((i+1)* gap, HEIGHT / 2.0, radius, Color.YELLOW, radius);
             ball.setColor(getRandomPredefinedColor());
-            ball.setVelocity(new Vec2(random.nextDouble() - .5, random.nextDouble() -.5).scale(300));
+            ball.setVelocity(new Vec2(random.nextDouble() - .5, random.nextDouble() -.5).getNormalized().scale(speed));
 
             balls.add(ball);
             root.getChildren().add(ball.getNode());
@@ -133,12 +140,19 @@ public class HelloApplication extends Application {
 
                 lastTime = now;
 
+                applyGravity(deltaTime);
                 moveBalls(deltaTime);
                 updatePhysics();
                 updateVisuals();
             }
         };
         timer.start();
+    }
+
+    private void applyGravity(double deltaTime) {
+        for (SimBall ball : balls){
+            ball.setVelocity(ball.getVelocity().add(gravity.scale(deltaTime)));
+        }
     }
 
     private void updateVisuals() {
@@ -159,6 +173,14 @@ public class HelloApplication extends Application {
 
         //Use spacial partitioning to find possible collisions
         List<BallsPair> possibleCollisions = CollisionHelper.findPossibleCollisions(balls);
+        for(int i = 0; i < 5; i++){
+            if(handleCollisions(possibleCollisions))
+                break;
+        }
+    }
+
+    private boolean handleCollisions(List<BallsPair> possibleCollisions) {
+        boolean flag = true;
         for(BallsPair pair : possibleCollisions){
             if(CollisionHelper.areCirclesColliding(pair)){
 
@@ -167,9 +189,10 @@ public class HelloApplication extends Application {
                 pair.b().setVelocity(velocities.v2New);
 
                 CollisionHelper.seperateBalls(pair.a(), pair.b());
-
+                flag = false;
             }
         }
+        return flag;
     }
 
     private void keepBallsInsideOfArena() {
