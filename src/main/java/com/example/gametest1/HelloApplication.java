@@ -1,9 +1,6 @@
 package com.example.gametest1;
 
-import com.example.gametest1.GameObjects.BallsPair;
-import com.example.gametest1.GameObjects.MyLine;
-import com.example.gametest1.GameObjects.SimBall;
-import com.example.gametest1.GameObjects.VelocityPair;
+import com.example.gametest1.GameObjects.*;
 import com.example.gametest1.Physics.CollisionHelper;
 import com.example.gametest1.Physics.Vec2;
 import javafx.application.Application;
@@ -26,17 +23,22 @@ public class HelloApplication extends Application {
     // Constants for simulation
     private static final int WIDTH = 800;
     private static final int HEIGHT = 800;
-    private static final int BALL_COUNT = 300;
+    private static final int BALL_COUNT = 500;
     private static final double BALL_RADIUS_MIN = 2;
     private static final double BALL_RADIUS_MAX = 8;
-    private static final double BALL_SPEED_MIN = 8;
-    private static final double BALL_SPEED_MAX = 50;
+    private static final double BALL_SPEED_MIN = 30;
+    private static final double BALL_SPEED_MAX = 200;
     private static final double ARENA_RADIUS = 350;
-    private static final double GRAVITY_FORCE = 200;
+    private static final double GRAVITY_FORCE = 100;
+    private static final double PUSH_STRENGTH = 300;
+    private static final double PUSH_RADIUS = 100;
     private static Vec2 gravityLocation = null;
     private static final Vec2 CENTER = new Vec2((double) WIDTH / 2, (double) HEIGHT / 2);
     private static final Random random = new Random();
     private static final boolean DRAW_LINES = false;
+    private static boolean isFollowingMouse = false;
+
+    private static IArena arena;
 
     // JavaFX root node
     private Pane root;
@@ -51,7 +53,12 @@ public class HelloApplication extends Application {
     public void start(Stage stage) {
         root = new Pane();
         root.setOnMouseMoved(e -> {
+            if(!isFollowingMouse)
+                return;
             gravityLocation = new Vec2(e.getX(), e.getY());
+        });
+        root.setOnMouseClicked(e -> {
+            pushBalls(new Vec2(e.getX(), e.getY()), PUSH_STRENGTH, PUSH_RADIUS);
         });
 
         Scene scene = new Scene(root, WIDTH, HEIGHT);
@@ -60,8 +67,10 @@ public class HelloApplication extends Application {
         stage.setScene(scene);
         stage.show();
 
+        arena = new ArenaCircle(CENTER, ARENA_RADIUS);
+
         // Set up arena boundary (optional, for visuals)
-        drawArena();
+        arena.draw(root);
 
         // Create balls and add to scene
         initBalls();
@@ -72,11 +81,13 @@ public class HelloApplication extends Application {
         startSimulation();
     }
 
-    private void drawArena() {
-        Circle boundary = new Circle(WIDTH / 2.0, HEIGHT / 2.0, ARENA_RADIUS);
-        boundary.setStroke(Color.GRAY);
-        boundary.setFill(Color.TRANSPARENT);
-        root.getChildren().add(boundary);
+    private void pushBalls(Vec2 location, double strength, double radius) {
+        for (SimBall ball : balls){
+            if(ball.getPosition().subtract(location).getMagnitude() + ball.getRadius() < radius){
+                Vec2 force = ball.getPosition().subtract(location).getNormalized().scale(strength);
+                ball.setVelocity(ball.getVelocity().add(force));
+            }
+        }
     }
 
     //<editor-fold desc="Testing Methods">
@@ -177,7 +188,7 @@ public class HelloApplication extends Application {
     private void updatePhysics() {
         //Use spacial partitioning to find possible collisions
         List<BallsPair> possibleCollisions = CollisionHelper.findPossibleCollisions(balls);
-        for(int i = 0; i < 15; i++){
+        for(int i = 0; i < 30; i++){
             keepBallsInsideOfArena();
             if(handleCollisions(possibleCollisions))
                 break;
@@ -202,8 +213,7 @@ public class HelloApplication extends Application {
 
     private void keepBallsInsideOfArena() {
         for (SimBall ball : balls){
-            if(ball.getPosition().subtract(CENTER).getMagnitude() >= ARENA_RADIUS - ball.getRadius())
-                CollisionHelper.resolveCollisionWithArena(ball, CENTER, ARENA_RADIUS);
+            arena.handleCollisionWithBall(ball);
         }
     }
 

@@ -9,8 +9,7 @@ import java.util.List;
 
 public class CollisionHelper {
 
-    private static final double RESTITUTION = .89;
-    private static final double WALL_RESTITUTION = .2;
+    private static final double RESTITUTION = .999;
 
     public static boolean areCirclesColliding(BallsPair pair){
         return areCirclesColliding(pair.a().getPosition(), pair.a().getRadius(), pair.b().getPosition(), pair.b().getRadius());
@@ -43,32 +42,6 @@ public class CollisionHelper {
         Vec2 newV2 = v2.subtract(correctionVec2.scale(RESTITUTION));
 
         return new VelocityPair(newV1, newV2);
-    }
-
-
-    public static void resolveCollisionWithArena(SimBall ball, Vec2 center, double R) {
-
-        moveBallBackToArena(ball, center, R);
-
-        Vec2 newVec = calculateReflectionVelocityVector(ball, center);
-        ball.setVelocity(newVec);
-    }
-
-    private static void moveBallBackToArena(SimBall ball, Vec2 center, double r) {
-        Vec2 dir = ball.getPosition().subtract(center);
-        double scalar = r - ball.getRadius();
-        Vec2 newPos = center.add(dir.getNormalized().scale(scalar));
-        ball.setPosition(newPos);
-    }
-
-    private static Vec2 calculateReflectionVelocityVector(SimBall ball, Vec2 center) {
-        Vec2 v = ball.getVelocity();
-        Vec2 normal = ball.getPosition().subtract(center).getNormalized();//A vector from Center to Ball
-        double vDotN = Vec2.dot(v, normal);//the amount of the velocity aligned with the normal (directly towards the wall)
-        Vec2 velocityByNormal = normal.scale(vDotN);//That part of the velocity
-        Vec2 directionalVelocity = v.subtract(velocityByNormal);//The remaining of the velocity, perpendicular to the normal
-        Vec2 newVec = velocityByNormal.scale(-1*WALL_RESTITUTION).add(directionalVelocity);//Flip the velocity to go towards the center, preserving sideways direction
-        return newVec;
     }
 
     public static void seperateBalls(SimBall a, SimBall b) {
