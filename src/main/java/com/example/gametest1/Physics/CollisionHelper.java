@@ -9,7 +9,7 @@ import java.util.List;
 
 public class CollisionHelper {
 
-    private static final double RESTITUTION = .8;
+    private static final double RESTITUTION = .89;
     private static final double WALL_RESTITUTION = .2;
 
     public static boolean areCirclesColliding(BallsPair pair){
@@ -63,11 +63,11 @@ public class CollisionHelper {
 
     private static Vec2 calculateReflectionVelocityVector(SimBall ball, Vec2 center) {
         Vec2 v = ball.getVelocity();
-        Vec2 mirrorVector = center.subtract(ball.getPosition());
-        double scalar = 2 * Vec2.dot(v.scale(-1), mirrorVector) /
-                mirrorVector.lengthSquared();
-        Vec2 newVec = mirrorVector.scale(scalar).add(v);
-
+        Vec2 normal = ball.getPosition().subtract(center).getNormalized();//A vector from Center to Ball
+        double vDotN = Vec2.dot(v, normal);//the amount of the velocity aligned with the normal (directly towards the wall)
+        Vec2 velocityByNormal = normal.scale(vDotN);//That part of the velocity
+        Vec2 directionalVelocity = v.subtract(velocityByNormal);//The remaining of the velocity, perpendicular to the normal
+        Vec2 newVec = velocityByNormal.scale(-1*WALL_RESTITUTION).add(directionalVelocity);//Flip the velocity to go towards the center, preserving sideways direction
         return newVec;
     }
 
